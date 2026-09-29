@@ -14,4 +14,4 @@
 
 这个目录已包含 GitHub Actions 发布流程。把全部文件推送到 GitHub 用户名对应的 `<用户名>.github.io` 仓库的 `main` 分支，并在仓库 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**。每次推送后，工作流会生成并发布网站。
 
-要得到 `https://DontBeSleepy.github.io/`，GitHub 账号名必须是 `DontBeSleepy`，仓库名必须是 `DontBeSleepy.github.io`。GitHub 用户名与域名大小写不敏感。
+要得到 `https://donotsleepy.github.io/`，GitHub 账号名必须是 `donotsleepy`，仓库名必须是 `donotsleepy.github.io`。GitHub 用户名与域名大小写不敏感。
