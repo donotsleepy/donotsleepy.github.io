@@ -71,13 +71,64 @@ def article_html(post):
     summary = escape(post["summary"])
     category = escape(post["category"])
     day = post["date_obj"].strftime("%Y.%m.%d")
-    return f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title} — 留白</title><meta name="description" content="{summary}"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css"></head><body><div class="page"><header class="site-header"><a class="brand" href="/" aria-label="留白，返回首页">留白<span style="color:#bc6244">.</span></a><nav class="nav" aria-label="主导航"><a href="/#writing">文章</a><a href="/#about">关于</a></nav></header><main><article><header class="article-header reveal"><a class="back-link" href="/#writing">← 返回文章列表</a><div class="article-meta"><span>{category}</span><span class="dot"></span><time datetime="{post['date']}">{day}</time><span class="dot"></span><span>{escape(post['reading_time'])} 分钟阅读</span></div><h1>{title}</h1><p class="article-summary">{summary}</p></header><hr class="article-rule"><div class="article-body">{markdown_to_html(post['body'])}</div><div class="article-end"><a class="back-link" href="/#writing">← 所有文章</a><span>留一点空白，给下一次思考。</span></div></article></main><footer class="site-footer"><span>© 2026 留白</span><span>写作让时间留下痕迹</span></footer></div></body></html>'''
+    return f'''<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f1e9">
+  <title>{title} — 留白</title>
+  <meta name="description" content="{summary}">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body id="top">
+  <a class="skip-link" href="#article-body">跳至正文</a>
+  <div class="page">
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="留白，返回首页">
+        <span class="brand-mark" aria-hidden="true">白</span>
+        <span class="brand-name">留白<small>LIUBAI · JOURNAL</small></span>
+      </a>
+      <nav class="nav" aria-label="主导航">
+        <a class="active" href="/#writing"><span>01</span>文章</a>
+        <a href="/#about"><span>02</span>关于</a>
+      </nav>
+    </header>
+    <main class="article-main">
+      <article>
+        <header class="article-header reveal">
+          <a class="back-link" href="/#writing">← 返回文章列表</a>
+          <div class="article-meta">
+            <span class="category">{category}</span>
+            <span class="dot"></span>
+            <time datetime="{post['date']}">{day}</time>
+            <span class="dot"></span>
+            <span>{escape(post['reading_time'])} 分钟阅读</span>
+          </div>
+          <h1>{title}</h1>
+          <p class="article-summary">{summary}</p>
+        </header>
+        <hr class="article-rule">
+        <div id="article-body" class="article-body">{markdown_to_html(post['body'])}</div>
+        <div class="article-end">
+          <a class="back-link" href="/#writing">← 所有文章</a>
+          <span>留一点空白，给下一次思考。</span>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <span>© 2026 留白</span>
+      <span class="footer-note">写作让时间留下痕迹</span>
+      <a href="#top">回到顶部<span aria-hidden="true">↑</span></a>
+    </footer>
+  </div>
+</body>
+</html>'''
 
 
 def main():
     posts = sorted((read_post(p) for p in POSTS.glob("*.md")), key=lambda p: p["date_obj"], reverse=True)
-    if not posts:
-        raise ValueError("Add at least one Markdown post to content/posts/")
     rows = []
     for index, post in enumerate(posts, 1):
         title = escape(post["title"])
@@ -89,7 +140,13 @@ def main():
         (directory / "index.html").write_text(article_html(post), encoding="utf-8")
 
     template = (ROOT / "templates" / "index.html").read_text(encoding="utf-8")
-    home = template.replace("{{post_rows}}", "".join(rows)).replace("{{post_count}}", f"01 — {len(posts):02d}")
+    post_count = f"01 — {len(posts):02d}" if posts else "00"
+    post_rows = "".join(rows) or '''<div class="empty-state">
+  <span class="empty-glyph" aria-hidden="true">白</span>
+  <div><p>纸页尚空，静候落笔。</p><span>新的文字，正在慢慢酝酿。</span></div>
+  <span class="empty-en">TO BE WRITTEN</span>
+</div>'''
+    home = template.replace("{{post_rows}}", post_rows).replace("{{post_count}}", post_count)
     (OUT / "index.html").write_text(home, encoding="utf-8")
     print(f"Built {len(posts)} posts")
 
